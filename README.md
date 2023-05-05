@@ -1,3 +1,5 @@
+# NotionTaskWhiz
+
 # .env
 
 ```

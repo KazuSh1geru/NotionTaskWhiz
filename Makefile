@@ -1,0 +1,2 @@
+lint:
+	zsh validate.sh
