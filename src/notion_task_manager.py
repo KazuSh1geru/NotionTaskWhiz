@@ -19,16 +19,40 @@ headers = {
 
 payload = {"page_size": 100}
 
+
 data = {
+    "parent": { "database_id": target_task_database_id },
     "properties": {
+        "Name": {
+        "title": [
+            { "text": { "content": "test_record" } }
+        ]
+        },
         "Status": {
-            # "status": { "name": "In progress" }
-            "status": {"name": "Done"}
+        "status": { "name": "In progress" }
         }
     }
 }
 
+def create_task(data):
+    url = f"https://api.notion.com/v1/pages"
+    response = requests.post(url, headers=headers, data=json.dumps(data))
 
+    if response.status_code == 200:
+        data = response.text
+        # ここでデータを処理する
+        print(data)
+    else:
+        print("エラーが発生しました。ステータスコード:", response.status_code)
+
+# data = {
+#     "properties": {
+#         "Status": {
+#             # "status": { "name": "In progress" }
+#             "status": {"name": "Done"}
+#         }
+#     }
+# }
 def test_status_change(sample_page_id, data):
     url = f"https://api.notion.com/v1/pages/{sample_page_id}"
     response = requests.patch(url, headers=headers, data=json.dumps(data))
@@ -55,5 +79,5 @@ def test_response():
 
 
 if __name__ == "__main__":
-    test_status_change(sample_page_id, data)
+    create_task(data)
     # test_response()
