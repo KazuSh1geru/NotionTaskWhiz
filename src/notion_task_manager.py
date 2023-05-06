@@ -2,6 +2,7 @@ import os
 import json
 import requests
 import dotenv
+from src.constants import TASK_STATUS
 
 dotenv.load_dotenv()
 
@@ -20,18 +21,28 @@ headers = {
 payload = {"page_size": 100}
 
 
-data = {
-    "parent": {"database_id": target_task_database_id},
-    "properties": {
-        "Name": {"title": [{"text": {"content": "test_record"}}]},
-        "Status": {"status": {"name": "In progress"}},
-    },
-}
-
-
-def create_task(data):
+def create_task(task_name, status=TASK_STATUS["not_started"]):
+    send_data = {
+        "parent": {"database_id": target_task_database_id},
+        "properties": {
+            "Name": {"title": [{"text": {"content": task_name}}]},
+            "Status": {"status": {"name": status}},
+        },
+    }
     url = f"https://api.notion.com/v1/pages"
-    response = requests.post(url, headers=headers, data=json.dumps(data))
+    response = requests.post(url, headers=headers, data=json.dumps(send_data))
+
+    if response.status_code == 200:
+        res = response.text
+        # ここでデータを処理する
+        print(res)
+    else:
+        print("エラーが発生しました。ステータスコード:", response.status_code)
+
+
+def find_task(task_name):
+    url = f"https://api.notion.com/v1/databases/{target_task_database_id}/query"
+    response = requests.post(url, json=payload, headers=headers)
 
     if response.status_code == 200:
         data = response.text

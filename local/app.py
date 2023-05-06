@@ -1,16 +1,14 @@
+from pprint import pprint
 import os
 
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from src.notion_task_manager import create_task
-
-from pprint import pprint
+from src.constants import TASK_STATUS
 
 from dotenv import load_dotenv
 
 load_dotenv()
-
-TASK_STATUS = {"not_started": "Not started", "progress": "In progress", "done": "Done"}
 
 # Install the Slack app and get xoxb- token in advance
 app = App(token=os.getenv("SLACK_BOT_TOKEN"))
@@ -21,14 +19,7 @@ def create_task_command(ack, body, say):
     ack()
     print(body)
     task_name = body["text"]
-    data = {
-        "parent": {"database_id": os.getenv("TARGET_TASK_DATABASE_ID")},
-        "properties": {
-            "Name": {"title": [{"text": {"content": task_name}}]},
-            "Status": {"status": {"name": TASK_STATUS["not_started"]}},
-        },
-    }
-    create_task(data)
+    create_task(task_name=task_name)
     say("Task: " + task_name + " を作成しました")
 
 
