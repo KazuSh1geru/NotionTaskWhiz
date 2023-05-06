@@ -3,7 +3,7 @@ import os
 
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
-from src.notion_task_manager import create_task
+from src.notion_task_manager import create_task, status_change
 from src.constants import TASK_STATUS
 
 from dotenv import load_dotenv
@@ -23,18 +23,13 @@ def create_task_command(ack, body, say):
     say("Task: " + task_name + " を作成しました")
 
 
-@app.command("/done_task")
+@app.command("/done-task")
 def done_task_command(ack, body, say):
     ack()
     print(body)
     task_name = body["text"]
-    data = {
-        "properties": {
-            "Status": {"status": {"name": TASK_STATUS["done"]}},
-        },
-    }
-    create_task(data)
-    say("Task: " + task_name + " を完了しました")
+    status_change(task_name=task_name, status=TASK_STATUS["done"])
+    say(f"{task_name} Done!")
 
 
 @app.command("/hello-socket-mode")
