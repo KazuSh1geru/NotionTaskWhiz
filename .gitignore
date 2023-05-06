@@ -1,2 +1,5 @@
 .python-version
 .env
+src/__pycache__
+# PyInstaller
+src.egg-info
