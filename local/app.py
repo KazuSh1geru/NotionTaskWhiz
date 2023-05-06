@@ -23,17 +23,11 @@ def hello_command(ack, body):
 def event_test(say):
     say("Hi there!")
     data = {
-        "parent": { "database_id": os.getenv("TARGET_TASK_DATABASE_ID") },
+        "parent": {"database_id": os.getenv("TARGET_TASK_DATABASE_ID")},
         "properties": {
-            "Name": {
-            "title": [
-                { "text": { "content": "test_record" } }
-            ]
-            },
-            "Status": {
-            "status": { "name": "In progress" }
-            }
-        }
+            "Name": {"title": [{"text": {"content": "test_record"}}]},
+            "Status": {"status": {"name": "In progress"}},
+        },
     }
     create_task(data)
 

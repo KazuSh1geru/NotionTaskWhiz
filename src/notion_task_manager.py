@@ -21,18 +21,13 @@ payload = {"page_size": 100}
 
 
 data = {
-    "parent": { "database_id": target_task_database_id },
+    "parent": {"database_id": target_task_database_id},
     "properties": {
-        "Name": {
-        "title": [
-            { "text": { "content": "test_record" } }
-        ]
-        },
-        "Status": {
-        "status": { "name": "In progress" }
-        }
-    }
+        "Name": {"title": [{"text": {"content": "test_record"}}]},
+        "Status": {"status": {"name": "In progress"}},
+    },
 }
+
 
 def create_task(data):
     url = f"https://api.notion.com/v1/pages"
@@ -44,6 +39,7 @@ def create_task(data):
         print(data)
     else:
         print("エラーが発生しました。ステータスコード:", response.status_code)
+
 
 # data = {
 #     "properties": {
