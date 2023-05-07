@@ -9,10 +9,9 @@ dotenv.load_dotenv()
 
 integration_token = os.getenv("NOTION_INTEGRATION_TOKEN")
 target_task_database_id = os.getenv("TARGET_TASK_DATABASE_ID")
-# sample_page_id = os.getenv("SAMPLE_PAGE_ID")
 
 
-headers = {
+HEADERS = {
     "Accept": "application/json",
     "Notion-Version": "2022-06-28",
     "Content-Type": "application/json",
@@ -29,7 +28,7 @@ def create_task(task_name, status=TASK_STATUS["not_started"]):
         },
     }
     url = f"https://api.notion.com/v1/pages"
-    response = requests.post(url, headers=headers, data=json.dumps(send_data))
+    response = requests.post(url, headers=HEADERS, data=json.dumps(send_data))
 
     if response.status_code == 200:
         res = response.text
@@ -43,7 +42,7 @@ def create_task(task_name, status=TASK_STATUS["not_started"]):
 def find_task(task_name):
     payload = {"filter": {"property": "Name", "title": {"equals": task_name}}}
     url = f"https://api.notion.com/v1/databases/{target_task_database_id}/query"
-    response = requests.post(url, json=payload, headers=headers)
+    response = requests.post(url, json=payload, headers=HEADERS)
 
     if response.status_code == 200:
         res = response.json()
@@ -60,7 +59,7 @@ def status_change(task_name, status=TASK_STATUS["done"]):
     page_id = find_task(task_name=task_name)
     data = {"properties": {"Status": {"status": {"name": status}}}}
     url = f"https://api.notion.com/v1/pages/{page_id}"
-    response = requests.patch(url, headers=headers, data=json.dumps(data))
+    response = requests.patch(url, headers=HEADERS, data=json.dumps(data))
 
     if response.status_code == 200:
         pprint("更新が成功しました")
@@ -71,10 +70,10 @@ def status_change(task_name, status=TASK_STATUS["done"]):
 def test_response():
     payload = {"page_size": 100}
     url = f"https://api.notion.com/v1/databases/{target_task_database_id}/query"
-    response = requests.post(url, json=payload, headers=headers)
+    response = requests.post(url, json=payload, headers=HEADERS)
 
     # url = f'https://api.notion.com/v1/databases/{target_task_database_id}'
-    # response = requests.get(url, headers=headers)
+    # response = requests.get(url, headers=HEADERS)
 
     if response.status_code == 200:
         data = response.json()
