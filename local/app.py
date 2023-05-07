@@ -4,7 +4,7 @@ import os
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from src.notion_task_manager import create_task, status_change
-from src.constants import TASK_STATUS
+from src.constants import TASK_STATUS, CREATE_TASK_VIEW
 
 from dotenv import load_dotenv
 
@@ -16,31 +16,11 @@ app = App(token=os.getenv("SLACK_BOT_TOKEN"))
 
 @app.command("/create-task")
 def create_task_command(ack, body, logger):
+    ack()
+    logger.info(body)
     client = app.client
     trigger_id = body["trigger_id"]
-    view = {
-        "title": {"type": "plain_text", "text": "タスクの新規登録 :pencil:", "emoji": True},
-        "submit": {"type": "plain_text", "text": "送信", "emoji": True},
-        "type": "modal",
-        "close": {"type": "plain_text", "text": "キャンセル", "emoji": True},
-        "blocks": [
-            {
-                "type": "input",
-                "block_id": "input-title",
-                "element": {
-                    "type": "plain_text_input",
-                    "action_id": "input",
-                    "placeholder": {
-                        "type": "plain_text",
-                        "text": "件名を入力してください",
-                        "emoji": True,
-                    },
-                },
-                "label": {"type": "plain_text", "text": "件名", "emoji": True},
-                "optional": False,
-            }
-        ],
-    }
+    view = CREATE_TASK_VIEW
     try:
         response = client.views_open(trigger_id=trigger_id, view=view)
         logger.info(response)
@@ -48,12 +28,19 @@ def create_task_command(ack, body, logger):
         # モーダルで送信ボタンが押された時の処理
         @app.view("")
         def handle_create_task(ack, body, logger):
+            # API通信に時間がかかるので、先にackを返す
+            ack()
             logger.info(body)
+            print("###"*10)
+            print(body)
             try:
                 task_name = body["view"]["state"]["values"]["input-title"]["input"][
                     "value"
                 ]
-                create_task(task_name=task_name)
+                start_data = body["view"]["state"]["values"]["input-deadline"]["input"][
+                    "selected_date"
+                ]
+                create_task(task_name=task_name, start_date=start_data)
                 ack()
                 app.client.chat_postMessage(
                     channel=os.getenv("SLACK_CHANNEL_ID"), text=f"{task_name} を作成しました！"
@@ -63,7 +50,6 @@ def create_task_command(ack, body, logger):
 
     except Exception as e:
         print(e)
-    ack()
 
 
 @app.command("/done-task")

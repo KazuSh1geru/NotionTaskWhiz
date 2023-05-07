@@ -3,7 +3,7 @@ import os
 import json
 import requests
 import dotenv
-from src.constants import TASK_STATUS
+from src.constants import TASK_STATUS, NOTION_MEMBERS
 
 dotenv.load_dotenv()
 
@@ -19,12 +19,14 @@ HEADERS = {
 }
 
 
-def create_task(task_name, status=TASK_STATUS["not_started"]):
+def create_task(task_name, start_date='2023-03-14', status=TASK_STATUS["not_started"]):
     send_data = {
         "parent": {"database_id": target_task_database_id},
         "properties": {
             "Name": {"title": [{"text": {"content": task_name}}]},
             "Status": {"status": {"name": status}},
+            "次回状況確認": {"date": {"start": start_date}},
+            "担当者": {"people": [{"id": NOTION_MEMBERS["kusagi"]}]} # 担当者のユーザーIDを指定する
         },
     }
     url = f"https://api.notion.com/v1/pages"
@@ -67,6 +69,18 @@ def status_change(task_name, status=TASK_STATUS["done"]):
         pprint("エラーが発生しました。ステータスコード:", response.status_code)
 
 
+def get_user_list():
+    url = "https://api.notion.com/v1/users?page_size=100"
+    response = requests.get(url, headers=HEADERS)
+
+    if response.status_code == 200:
+        data = response.json()
+        # ここでデータを処理する
+        pprint(data)
+    else:
+        print("エラーが発生しました。ステータスコード:", response.status_code)
+
+
 def test_response():
     payload = {"page_size": 100}
     url = f"https://api.notion.com/v1/databases/{target_task_database_id}/query"
@@ -87,4 +101,5 @@ if __name__ == "__main__":
     # create_task(data)
     # test_response()
     # find_task("ティッシュ買う")
-    status_change("ティッシュ買う")
+    # status_change("ティッシュ買う")
+    get_user_list()
